@@ -4,7 +4,7 @@
 ***初期参照过市面上的开源，没有完全匹配要求的，最终还是自己动手做了一个，整理下了总体实现的思路和关键点***
 
 *先上图和视频*
-<iframe height=498 width=510 src="https://github.com/androidsihai1/CircleWheelView/blob/master/%E8%BD%AE%E7%9B%98%E8%A7%86%E9%A2%91.mp4?raw=true">
+<iframe height=500 width=500 src="https://github.com/androidsihai1/CircleWheelView/blob/master/%E8%BD%AE%E7%9B%98%E8%A7%86%E9%A2%91.gif">
 ## 整体思路
 1.绘制扇形区域和中心圆形区域
 2.手指触摸位置判断（中心，扇形区域），选中区域重新绘制背景色
