@@ -4,7 +4,7 @@
 ***初期参照过市面上的开源，没有完全匹配要求的，最终还是自己动手做了一个，整理下了总体实现的思路和关键点***
 
 *先上图和视频*
-<iframe height=500 width=500 src="https://github.com/androidsihai1/CircleWheelView/blob/master/%E8%BD%AE%E7%9B%98%E8%A7%86%E9%A2%91.gif"><br>
+
 ## 整体思路<br>
 1.绘制扇形区域和中心圆形区域  <br>
 2.手指触摸位置判断（中心，扇形区域），选中区域重新绘制背景色  <br>
@@ -21,8 +21,7 @@
 1.扇形绘制（无中心部分）： 1- 扇形  2-中心圆形  使用 Path.Op.DIFFERENCE 属性就是代表：  
    绘制图 = 图1--图1和图2的交集  
      * 获取绘制弧度所需要的path  
-、、、
-     *  
+```
      * @param in
      * @param out
      * @param startAngle
@@ -45,14 +44,12 @@
         path.op(path2, path1, Path.Op.DIFFERENCE)
         return path
     }
-
-、、、
-
+```
 2.扇形区域的保存，由于扇形的path已经保存在 mRegionList,后面直接根据手指的(x,y)判断所在扇形区域
 
 根据扇形的path设置
-、、、
- /**
+```
+/**
      * 判断扇形区域
      */
     private fun inAreaPos(event: MotionEvent, regions: MutableList<Region>): Int {
@@ -65,9 +62,9 @@
         }
         return -1
     }
-
+```
 3.扇形中的文字绘制
-
+```
       /**
      * 扇形画文字
      */
@@ -111,7 +108,7 @@
             )
         }
     }
-	、、、
+```
 4.圆形中心和弧形间线条的绘制(思路：根据角度找到内部圆形的坐标（x1,y2），在找到圆弧上的点(x2,y2)，path连起来，然后绘制线条)
     /**
      * 圆形中心和弧形间线条的绘制
