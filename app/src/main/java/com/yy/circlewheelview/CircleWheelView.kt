@@ -7,6 +7,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Region
@@ -124,7 +125,8 @@ class CircleWheelView : View {
                     startAngel + mChangeAngel / 2,
                     mTextList[i],
                     mTextPaint,
-                    mArcRadiu
+                    mArcRadiu,
+                    mCenterRadiu * 2 / 3
                 )
                 mRegionList.add(getRegion(path = arcPath))
                 drawLinePath(
@@ -208,46 +210,51 @@ class CircleWheelView : View {
         invalidate()
     }
 
-    //扇形画文字
+    /**
+     * 扇形画文字
+     */
     private fun drawText(
         mCanvas: Canvas,
         textAngle: Float,
         kinds: String,
         mPaint: Paint,
-        mRadius: Float
+        mRadius: Float,
+        mCenTer: Float
     ) {
         val rect = Rect()
         mPaint.textSize = 38f
+        var fontMetrics = mPaint.fontMetrics
+        val dy = (fontMetrics.bottom - fontMetrics.top) / 2f - fontMetrics.bottom
         mPaint.getTextBounds(kinds, 0, kinds.length, rect)
+        val pointEnd = PointF()
+        val pointStart = PointF()
+        val pointCengter = PointF()
+        var x = 0.0
+        var y = 0.0
         if (textAngle in 0.0..90.0) { //画布坐标系第一象限(数学坐标系第四象限)
-            mCanvas.drawText(
-                kinds,
-                (mRadius * 0.6 * cos(Math.toRadians(textAngle.toDouble()))).toFloat(),
-                (mRadius * 0.7 * sin(Math.toRadians(textAngle.toDouble()))).toFloat() + rect.height() / 2,
-                mPaint
-            )
+            x = cos(Math.toRadians(textAngle.toDouble()))
+            y = sin(Math.toRadians(textAngle.toDouble()))
         } else if (textAngle > 90 && textAngle <= 180) { //画布坐标系第二象限(数学坐标系第三象限)
-            mCanvas.drawText(
-                kinds,
-                (-mRadius * 0.6 * cos(Math.toRadians(180 - textAngle.toDouble()))).toFloat(),
-                (mRadius * 0.7 * sin(Math.toRadians(180 - textAngle.toDouble()))).toFloat() + rect.height() / 2,
-                mPaint
-            )
+            x = (-cos(Math.toRadians(180 - textAngle.toDouble())))
+            y = (sin(Math.toRadians(180 - textAngle.toDouble())))
         } else if (textAngle > 180 && textAngle <= 270) { //画布坐标系第三象限(数学坐标系第二象限)
-            mCanvas.drawText(
-                kinds,
-                (-mRadius * 0.6 * cos(Math.toRadians(textAngle - 180.toDouble()))).toFloat(),
-                (-mRadius * 0.7 * sin(Math.toRadians(textAngle - 180.toDouble()))).toFloat() + rect.height() / 2,
-                mPaint
-            )
+            x = (-cos(Math.toRadians(textAngle - 180.toDouble())))
+            y = (-sin(Math.toRadians(textAngle - 180.toDouble())))
         } else { //画布坐标系第四象限(数学坐标系第一象限)
-            mCanvas.drawText(
-                kinds,
-                (mRadius * 0.6 * cos(Math.toRadians(360 - textAngle.toDouble()))).toFloat(),
-                (-mRadius * 0.7 * sin(Math.toRadians(360 - textAngle.toDouble()))).toFloat() + rect.height() / 2,
-                mPaint
-            )
+            x = (cos(Math.toRadians(360 - textAngle.toDouble())))
+            y = (-sin(Math.toRadians(360 - textAngle.toDouble())))
         }
+        pointStart.set((x * mCenTer).toFloat(), (y * mCenTer).toFloat())
+        pointEnd.set((x * mRadius).toFloat(), (y * mRadius).toFloat())
+        pointCengter.set((pointEnd.x + pointStart.x) / 2, (pointEnd.y + pointStart.y) / 2)
+        Log.i(TAG, "X= ${(pointEnd.x + pointStart.x) / 2}  y=${(pointEnd.y + pointStart.y) / 2}")
+
+        mCanvas.drawText(
+            kinds,
+            pointCengter.x,
+            pointCengter.y + dy,
+            mPaint
+        )
     }
 
 
@@ -268,7 +275,6 @@ class CircleWheelView : View {
     ): Path {
         val path1 = Path()
         path1.moveTo(inSide.centerX(), inSide.centerY())
-        //path1.arcTo(inSide, startAngle, angle - 1f)
         path1.addCircle(inSide.centerX(), inSide.centerY(), 2 * mCenterRadiu / 3, Path.Direction.CW)
         val path2 = Path()
         path2.moveTo(out.centerX(), out.centerY())
@@ -278,6 +284,9 @@ class CircleWheelView : View {
         return path
     }
 
+    /**
+     * 圆形中心和弧形间线条的绘制
+     */
     private fun drawLinePath(
         canvas: Canvas,
         radius: Float,
@@ -363,12 +372,12 @@ class CircleWheelView : View {
     private fun drawCenterText(canvas: Canvas, paint: Paint, centerTitle: String, radius: Float) {
         paint.color = Color.WHITE
         paint.textSize = 40f
-        val rect = Rect()
-        paint.getTextBounds(centerTitle, 0, centerTitle.length, rect)
+        var fontMetrics = paint.fontMetrics
+        val dy = (fontMetrics.bottom - fontMetrics.top) / 2f - fontMetrics.bottom
         canvas.drawText(
             centerTitle,
             0f,
-            rect.height() / 2f,
+            dy,
             paint
         )
     }
