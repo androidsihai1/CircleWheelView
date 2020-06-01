@@ -4,24 +4,24 @@
 ***初期参照过市面上的开源，没有完全匹配要求的，最终还是自己动手做了一个，整理下了总体实现的思路和关键点***
 
 *先上图和视频*
-<iframe height=498 width=510 src="https://github.com/androidsihai1/CircleWheelView/blob/master/%E8%BD%AE%E7%9B%98%E8%A7%86%E9%A2%91.mp4?raw=true">
-## 整体思路
-1.绘制扇形区域和中心圆形区域
-2.手指触摸位置判断（中心，扇形区域），选中区域重新绘制背景色
-3.绘制中心圆弧和扇形之间白色线条
-4.扇形区域文字绘制
-5.为了特效，设计给的一些背景图的绘制
+
+## 整体思路<br>
+1.绘制扇形区域和中心圆形区域  <br>
+2.手指触摸位置判断（中心，扇形区域），选中区域重新绘制背景色  <br>
+3.绘制中心圆弧和扇形之间白色线条  <br>
+4.扇形区域文字绘制  <br>
+5.为了特效，设计给的一些背景图的绘制  <br>
 
 
-##特别注意点：
-1.Android中扇形绘制起始点默认是水平方向顺时针方向，开始绘制
-2.为了方便计算,canvas最好先移动中心位置，原点坐标才会为（0，0）:
-    canvas.translate(mWRadius, mWRadius)
-###核心代码解析
-1.扇形绘制（无中心部分）： 1- 扇形  2-中心圆形  使用 Path.Op.DIFFERENCE 属性就是代表：
-   绘制图 = 图1--图1和图2的交集
-     * 获取绘制弧度所需要的path
-     *
+##特别注意点：  
+1.Android中扇形绘制起始点默认是水平方向顺时针方向，开始绘制  
+2.为了方便计算,canvas最好先移动中心位置，原点坐标才会为（0，0）:  
+    canvas.translate(mWRadius, mWRadius)  
+###核心代码解析  
+1.扇形绘制（无中心部分）： 1- 扇形  2-中心圆形  使用 Path.Op.DIFFERENCE 属性就是代表：  
+   绘制图 = 图1--图1和图2的交集  
+     * 获取绘制弧度所需要的path  
+```
      * @param in
      * @param out
      * @param startAngle
@@ -44,14 +44,12 @@
         path.op(path2, path1, Path.Op.DIFFERENCE)
         return path
     }
-
-
-
+```
 2.扇形区域的保存，由于扇形的path已经保存在 mRegionList,后面直接根据手指的(x,y)判断所在扇形区域
 
 根据扇形的path设置
-
- /**
+```
+/**
      * 判断扇形区域
      */
     private fun inAreaPos(event: MotionEvent, regions: MutableList<Region>): Int {
@@ -64,10 +62,10 @@
         }
         return -1
     }
-
-3.扇形中的文字绘制
-
-      /**
+```
+3.扇形中的文字绘制 (为了文字居中，首先获取角度的一半，获取中心圆形到圆弧2点的中间坐标，然后在中间坐标绘制文字)
+```
+ /**
      * 扇形画文字
      */
     private fun drawText(
@@ -75,42 +73,47 @@
         textAngle: Float,
         kinds: String,
         mPaint: Paint,
-        mRadius: Float
+        mRadius: Float,
+        mCenTer: Float
     ) {
         val rect = Rect()
         mPaint.textSize = 38f
+        var fontMetrics = mPaint.fontMetrics
+        val dy = (fontMetrics.bottom - fontMetrics.top) / 2f - fontMetrics.bottom
         mPaint.getTextBounds(kinds, 0, kinds.length, rect)
+        val pointEnd = PointF()
+        val pointStart = PointF()
+        val pointCengter = PointF()
+        var x = 0.0
+        var y = 0.0
         if (textAngle in 0.0..90.0) { //画布坐标系第一象限(数学坐标系第四象限)
-            mCanvas.drawText(
-                kinds,
-                (mRadius * 0.6 * cos(Math.toRadians(textAngle.toDouble()))).toFloat(),
-                (mRadius * 0.7 * sin(Math.toRadians(textAngle.toDouble()))).toFloat() + rect.height() / 2,
-                mPaint
-            )
+            x = cos(Math.toRadians(textAngle.toDouble()))
+            y = sin(Math.toRadians(textAngle.toDouble()))
         } else if (textAngle > 90 && textAngle <= 180) { //画布坐标系第二象限(数学坐标系第三象限)
-            mCanvas.drawText(
-                kinds,
-                (-mRadius * 0.6 * cos(Math.toRadians(180 - textAngle.toDouble()))).toFloat(),
-                (mRadius * 0.7 * sin(Math.toRadians(180 - textAngle.toDouble()))).toFloat() + rect.height() / 2,
-                mPaint
-            )
+            x = (-cos(Math.toRadians(180 - textAngle.toDouble())))
+            y = (sin(Math.toRadians(180 - textAngle.toDouble())))
         } else if (textAngle > 180 && textAngle <= 270) { //画布坐标系第三象限(数学坐标系第二象限)
-            mCanvas.drawText(
-                kinds,
-                (-mRadius * 0.6 * cos(Math.toRadians(textAngle - 180.toDouble()))).toFloat(),
-                (-mRadius * 0.7 * sin(Math.toRadians(textAngle - 180.toDouble()))).toFloat() + rect.height() / 2,
-                mPaint
-            )
+            x = (-cos(Math.toRadians(textAngle - 180.toDouble())))
+            y = (-sin(Math.toRadians(textAngle - 180.toDouble())))
         } else { //画布坐标系第四象限(数学坐标系第一象限)
-            mCanvas.drawText(
-                kinds,
-                (mRadius * 0.6 * cos(Math.toRadians(360 - textAngle.toDouble()))).toFloat(),
-                (-mRadius * 0.7 * sin(Math.toRadians(360 - textAngle.toDouble()))).toFloat() + rect.height() / 2,
-                mPaint
-            )
+            x = (cos(Math.toRadians(360 - textAngle.toDouble())))
+            y = (-sin(Math.toRadians(360 - textAngle.toDouble())))
         }
+        pointStart.set((x * mCenTer).toFloat(), (y * mCenTer).toFloat())
+        pointEnd.set((x * mRadius).toFloat(), (y * mRadius).toFloat())
+        pointCengter.set((pointEnd.x + pointStart.x) / 2, (pointEnd.y + pointStart.y) / 2)
+        Log.i(TAG, "X= ${(pointEnd.x + pointStart.x) / 2}  y=${(pointEnd.y + pointStart.y) / 2}")
+
+        mCanvas.drawText(
+            kinds,
+            pointCengter.x,
+            pointCengter.y + dy,
+            mPaint
+        )
     }
+```
 4.圆形中心和弧形间线条的绘制(思路：根据角度找到内部圆形的坐标（x1,y2），在找到圆弧上的点(x2,y2)，path连起来，然后绘制线条)
+```
     /**
      * 圆形中心和弧形间线条的绘制
      */
@@ -170,7 +173,8 @@
         }
         canvas.drawPath(linePath, paint)
     }
-
+```
 5.中间文字的绘制和中心圆形位置选中和未选中用的是图片绘制，这个就没啥可说的了
+6.其实该控件还支持合并，拆解，缩放，拖拽  ，但是为了简洁点，都已经被我干掉了 有兴趣的看视频
 
 
