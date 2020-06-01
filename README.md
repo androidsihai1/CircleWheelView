@@ -67,7 +67,9 @@
 
 3.扇形中的文字绘制
 
-    //扇形画文字
+      /**
+     * 扇形画文字
+     */
     private fun drawText(
         mCanvas: Canvas,
         textAngle: Float,
