@@ -15,14 +15,14 @@ https://github.com/androidsihai1/CircleWheelView/raw/master/%E8%BD%AE%E7%9B%98%E
 5.为了特效，设计给的一些背景图的绘制  <br>
 
 
-##特别注意点：  
+##特别注意点
 1.Android中扇形绘制起始点默认是水平方向顺时针方向，开始绘制  
-2.为了方便计算,canvas最好先移动中心位置，原点坐标才会为（0，0）:  
-    canvas.translate(mWRadius, mWRadius)  
-###核心代码解析  
-1.扇形绘制（无中心部分）： 1- 扇形  2-中心圆形  使用 Path.Op.DIFFERENCE 属性就是代表：  
-   绘制图 = 图1--图1和图2的交集  
-     * 获取绘制弧度所需要的path  
+2.为了方便计算,canvas最好先移动中心位置，原点坐标才会为（0，0
+    canvas.translate(mWRadius, mWRadius)
+###核心代码解析
+1.扇形绘制（无中心部分）： 1- 扇形  2-中心圆形  使用 Path.Op.DIFFERENCE 属性就是代表
+   绘制图 = 图1--图1和图2的交集
+     * 获取绘制弧度所需要的path
 ```
      * @param in
      * @param out
