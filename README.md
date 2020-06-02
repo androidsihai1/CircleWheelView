@@ -176,4 +176,6 @@ https://github.com/androidsihai1/CircleWheelView/raw/master/%E8%BD%AE%E7%9B%98%E
 5.中间文字的绘制和中心圆形位置选中和未选中用的是图片绘制，这个就没啥可说的了 <br>
 6.其实该控件还支持合并，拆解，缩放，拖拽  ，但是为了简洁点，都已经被我干掉了  <br>
 
+### 最后还要感谢下，控件制作过程中，给予我思路灵感的同事 [阿勇](https://github.com/ly-android/)
+
 
